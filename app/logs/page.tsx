@@ -1,7 +1,7 @@
 import {ParseParams} from "@/components/types";
 import Dashboard from "@/components/Dashboard";
-import Overview from "@/components/Overview";
 import {Typography} from "@mui/material";
+import { LogView } from "@/components/LogView";
 
 export default async function Page({searchParams}: {
     params: { slug: string }
@@ -14,9 +14,9 @@ export default async function Page({searchParams}: {
                 params={parsedParams}
             >
                 <Typography variant='h5'>
-                    Overview
+                    Logs
                 </Typography>
-                <Overview params={parsedParams}/>
+                <LogView params={parsedParams} />
             </Dashboard>
         </main>
     )

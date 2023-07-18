@@ -2,17 +2,20 @@
 
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
-import {useRouter} from "next/navigation";
+import {usePathname, useRouter} from "next/navigation";
+import {GenerateParams, ParsedParams} from "@/components/types";
 
 interface DropdownProps {
-    id: string
-    selected: string[];
+    id: 'client' | 'provider'
     options: string[];
+    params: ParsedParams;
 }
 
-export default function Dropdown({id, selected, options}: DropdownProps) {
+export default function Dropdown({id, options, params}: DropdownProps) {
     const idUpper = id.charAt(0).toUpperCase() + id.slice(1)
     const router = useRouter();
+    const pathname = usePathname();
+    const selected = params[id]
 
     return (
         <Autocomplete
@@ -28,9 +31,8 @@ export default function Dropdown({id, selected, options}: DropdownProps) {
             onChange={(event, value) => {
                 event.preventDefault();
                 if (value !== null) {
-                    const params = new URLSearchParams(window.location.search)
-                    params.set(id, value.join(','))
-                    router.push('?' + params.toString())
+                    params[id] = value
+                    router.push(pathname + '?' + GenerateParams(params))
                 }
             }}
         />

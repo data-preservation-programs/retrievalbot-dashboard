@@ -1,6 +1,6 @@
 import {ParseParams} from "@/components/types";
 import Dashboard from "@/components/Dashboard";
-import Overview from "@/components/Overview";
+import ProtocolView from "@/components/ProtocolView";
 import {Typography} from "@mui/material";
 
 export default async function Page({searchParams}: {
@@ -14,9 +14,9 @@ export default async function Page({searchParams}: {
                 params={parsedParams}
             >
                 <Typography variant='h5'>
-                    Overview
+                    Graphsync retrieval
                 </Typography>
-                <Overview params={parsedParams}/>
+                <ProtocolView params={parsedParams} module='graphsync'/>
             </Dashboard>
         </main>
     )

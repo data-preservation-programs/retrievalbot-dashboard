@@ -1,10 +1,11 @@
-import {FilterProps} from "@/components/types";
+import {ParsedParams} from "@/components/types";
 import Grid from "@mui/material/Grid/Grid";
 import {Paper, Typography} from "@mui/material";
 import {getTimeSeries, ModuleName} from "@/util/db";
 import dynamic from "next/dynamic";
 
-interface ProtocolViewProps extends FilterProps {
+interface ProtocolViewProps {
+    params: ParsedParams;
     module: ModuleName;
 }
 
@@ -13,8 +14,9 @@ const LazyTimeSeries = dynamic(() => import('@/components/TimeSeries'), {
     loading: () => <p>Loading...</p>
 });
 
-export default async function ProtocolView({requester, clients, providers, module, dateRange}: ProtocolViewProps) {
-    const rawData = await getTimeSeries(requester, clients, providers, module, dateRange)
+export default async function ProtocolView({params, module}: ProtocolViewProps) {
+    const {requester, client, provider, dateRange} = params;
+    const rawData = await getTimeSeries(requester, client, provider, module, dateRange)
     const clientSet = new Set<string>();
     const providerSet = new Set<string>();
     for (const data of rawData) {

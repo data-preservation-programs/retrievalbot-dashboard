@@ -1,14 +1,17 @@
 'use client'
 import {ToggleButton, ToggleButtonGroup} from "@mui/material";
-import {DateRange} from "@/components/types";
-import {useRouter} from "next/navigation";
+import {GenerateParams, ParsedParams} from "@/components/types";
+import {usePathname, useRouter} from "next/navigation";
 
 interface DateRangePickerProps {
-    selected: DateRange;
+    params: ParsedParams;
 }
 
-export default function DateRangePicker({ selected} : DateRangePickerProps) {
+export default function DateRangePicker({ params } : DateRangePickerProps) {
+    const selected = params.dateRange
     const router = useRouter();
+    const pathname = usePathname();
+    console.log(selected)
     return (
         <ToggleButtonGroup
             value={selected}
@@ -16,9 +19,8 @@ export default function DateRangePicker({ selected} : DateRangePickerProps) {
             onChange={(event, value) => {
                 event.preventDefault();
                 if (value !== null) {
-                    const params = new URLSearchParams(window.location.search)
-                    params.set('dateRange', value)
-                    router.push('?' + params.toString())
+                    params.dateRange = value
+                    router.push(pathname + '?' + GenerateParams(params))
                 }
             }}
         >
