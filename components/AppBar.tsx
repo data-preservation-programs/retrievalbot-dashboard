@@ -60,9 +60,9 @@ export default async function AppBar({
                     Choose a filter to get started:
                 </Typography>
                 <Box m={2}/>
-                <Dropdown id='client' options={clientOptions} params={params}/>
+                <Dropdown id='client' options={clientOptions!} params={params}/>
                 <Box m={2}/>
-                <Dropdown id='provider' options={providerOptions} params={params}/>
+                <Dropdown id='provider' options={providerOptions!} params={params}/>
                 <Box m={4}/>
                 <DateRangePicker params={params}/>
             </Toolbar>
