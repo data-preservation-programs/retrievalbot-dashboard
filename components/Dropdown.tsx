@@ -20,9 +20,9 @@ export default function Dropdown({id, label, options, selected, setSelected}: Dr
             options={options}
             filterSelectedOptions
             renderInput={(params) => (
-                <TextField {...params} variant="standard" placeholder={label}/>)}
+                <TextField {...params} variant="standard" placeholder={label} sx={{ backgroundColor: 'white' }}/>)}
             value={selected}
-            sx={{width: 300, color:'inherit'}}
+            sx={{width: 300}}
             onChange={(event, value) => {
                 event.preventDefault();
                 setSelected(value);
