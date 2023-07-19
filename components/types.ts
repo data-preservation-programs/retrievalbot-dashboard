@@ -69,3 +69,8 @@ export function GenerateParams(requester?: string, clients?: string[], providers
 
 
 export type ViewType = 'overview' | 'http' | 'graphsync' | 'bitswap' | 'logs'
+
+export interface RankBarEntry {
+    id: string,
+    value: number,
+}
