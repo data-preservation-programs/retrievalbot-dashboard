@@ -4,8 +4,9 @@ import {useEffect, useState} from "react";
 import {DateRange, GenerateParams, RankBarEntry} from "@/components/types";
 import Grid from "@mui/material/Grid/Grid";
 import {Paper, Typography} from "@mui/material";
-import {ModuleName, TimeSeriesEntry} from "@/util/db";
+import {ModuleName, TimeSeriesEntry} from "@/util/retrieval";
 import dynamic from "next/dynamic";
+import {TimeSeriesRawData} from "@/components/TimeSeries";
 
 interface OverviewProps {
     requester: string;
@@ -27,22 +28,28 @@ const LazyRankBar = dynamic(() => import('@/components/RankBar'), {
 export default function Overview({requester, clients, providers, dateRange}: OverviewProps) {
     const rawDataList: {
         name: ModuleName,
-        timeSeries: TimeSeriesEntry[],
-        setTimeSeries: (_: TimeSeriesEntry[]) => void,
+        timeSeries: TimeSeriesRawData,
+        setTimeSeries: (_: TimeSeriesRawData) => void,
         rankEntries: RankBarEntry[],
         setRankEntries: (_: RankBarEntry[]) => void,
+        percentage: number,
+        setPercentage: (_: number) => void
     }[] = []
     for (const name of ['http', 'graphsync', 'bitswap'] as ModuleName[]) {
         // eslint-disable-next-line react-hooks/rules-of-hooks
-        const [timeSeries, setTimeSeries] = useState<TimeSeriesEntry[]>([])
+        const [timeSeries, setTimeSeries] = useState<TimeSeriesRawData>([dateRange, []])
         // eslint-disable-next-line react-hooks/rules-of-hooks
         const [rankEntries, setRankEntries] = useState<RankBarEntry[]>([])
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const [percentage, setPercentage] = useState<number>(0)
         rawDataList.push({
             name,
             timeSeries,
             setTimeSeries,
             rankEntries,
-            setRankEntries
+            setRankEntries,
+            percentage,
+            setPercentage
         })
     }
 
@@ -53,7 +60,9 @@ export default function Overview({requester, clients, providers, dateRange}: Ove
         for (const rawData of rawDataList) {
             fetch('/api/series?' + GenerateParams(requester, clients, providers, dateRange, rawData.name))
                 .then(res => res.json()).then((r: TimeSeriesEntry[]) => {
-                rawData.setTimeSeries(r)
+                rawData.setTimeSeries([dateRange, r])
+                let success = 0
+                let total = 0
                 const rankEntries: RankBarEntry[] = []
                 const providerStats = new Map<string, [number, number]>()
                 for (const entry of r) {
@@ -62,8 +71,10 @@ export default function Overview({requester, clients, providers, dateRange}: Ove
                     }
                     if (entry.status === 'success') {
                         providerStats.get(entry.provider)![0]++
+                        success++
                     }
                     providerStats.get(entry.provider)![1]++
+                    total++
                 }
                 for (const [provider, [success, total]] of providerStats.entries()) {
                     rankEntries.push({
@@ -72,6 +83,7 @@ export default function Overview({requester, clients, providers, dateRange}: Ove
                     })
                 }
                 rawData.setRankEntries(rankEntries)
+                rawData.setPercentage(success / total)
             }).catch(console.error)
         }
     }, [requester, clients, providers, dateRange])
@@ -86,8 +98,22 @@ export default function Overview({requester, clients, providers, dateRange}: Ove
 
     return (
         <div>
+            <Grid container spacing={10} key={0} p={3}>
+                {rawDataList.map(({name, percentage}, index) => (
+                    <Grid item md={2} key={index}>
+                        <Paper elevation={12} >
+                            <Typography variant="subtitle1" align={'center'}>
+                                {name.toUpperCase()} Total Success Rate
+                            </Typography>
+                            <Typography variant="h4" align={'center'}>
+                                {(percentage * 100).toFixed(2)} %
+                            </Typography>
+                        </Paper>
+                    </Grid>))
+                }
+            </Grid>
             {rawDataList.map(({name, timeSeries, rankEntries}, index) => (
-                <Grid container spacing={10} key={index} p={3}>
+                <Grid container spacing={10} key={index+1} p={3}>
                     <Grid item md={4}>
                         <Typography variant="h6">
                             {name.toUpperCase()} Retrieval Success Ratio Per Client
@@ -96,7 +122,6 @@ export default function Overview({requester, clients, providers, dateRange}: Ove
                             <div style={{height: 400}}>
                                 <LazyTimeSeries
                                     rawData={timeSeries}
-                                    dateRange={dateRange}
                                     type={'client'}/>
                             </div>
                         </Paper>
@@ -109,7 +134,6 @@ export default function Overview({requester, clients, providers, dateRange}: Ove
                             <div style={{height: 400}}>
                                 <LazyTimeSeries
                                     rawData={timeSeries}
-                                    dateRange={dateRange}
                                     type={'provider'}/>
                             </div>
                         </Paper>

@@ -2,11 +2,12 @@
 
 import Grid from "@mui/material/Grid/Grid";
 import {FormControl, FormControlLabel, Paper, Radio, RadioGroup, Typography} from "@mui/material";
-import {ModuleName, TimeSeriesEntry} from "@/util/db";
+import {ModuleName, TimeSeriesEntry} from "@/util/retrieval";
 import dynamic from "next/dynamic";
 import {DateRange, GenerateParams} from "@/components/types";
 import {useEffect, useState} from "react";
 import { FormLabel } from "@mui/material";
+import {TimeSeriesRawData} from "@/components/TimeSeries";
 
 interface ProtocolViewProps {
     requester: string;
@@ -22,8 +23,8 @@ const LazyTimeSeries = dynamic(() => import('@/components/TimeSeries'), {
 });
 
 export default function ProtocolView({requester, clients, providers, dateRange, module}: ProtocolViewProps) {
-    const [rawDataPerClient, setRawDataPerClient] = useState<[string, TimeSeriesEntry[]][]>([]);
-    const [rawDataPerProvider, setRawDataPerProvider] = useState<[string, TimeSeriesEntry[]][]>([]);
+    const [rawDataPerClient, setRawDataPerClient] = useState<[string, TimeSeriesRawData][]>([]);
+    const [rawDataPerProvider, setRawDataPerProvider] = useState<[string, TimeSeriesRawData][]>([]);
     const [client, setClient] = useState<string>('');
     const [provider, setProvider] = useState<string>('');
 
@@ -33,17 +34,17 @@ export default function ProtocolView({requester, clients, providers, dateRange, 
         }
         fetch('/api/series?' + GenerateParams(requester, clients, providers, dateRange, module))
             .then(res => res.json()).then((rawData: TimeSeriesEntry[]) => {
-            const rawDataPerClient = new Map<string,TimeSeriesEntry[]>();
-            const rawDataPerProvider = new Map<string,TimeSeriesEntry[]>();
+            const rawDataPerClient = new Map<string,TimeSeriesRawData>();
+            const rawDataPerProvider = new Map<string,TimeSeriesRawData>();
             for (const data of rawData) {
                 if (!rawDataPerClient.has(data.client)) {
-                    rawDataPerClient.set(data.client, []);
+                    rawDataPerClient.set(data.client, [dateRange, []]);
                 }
                 if (!rawDataPerProvider.has(data.provider)) {
-                    rawDataPerProvider.set(data.provider, []);
+                    rawDataPerProvider.set(data.provider, [dateRange, []]);
                 }
-                rawDataPerClient.get(data.client)!.push(data);
-                rawDataPerProvider.get(data.provider)!.push(data);
+                rawDataPerClient.get(data.client)![1].push(data);
+                rawDataPerProvider.get(data.provider)![1].push(data);
             }
             setRawDataPerClient(Array.from(rawDataPerClient.entries()));
             setRawDataPerProvider(Array.from(rawDataPerProvider.entries()));
@@ -89,8 +90,7 @@ export default function ProtocolView({requester, clients, providers, dateRange, 
                     <Paper elevation={12}>
                         <div style={{height: 400}}>
                             <LazyTimeSeries
-                                rawData={rawDataPerProvider.find(([providerName, _]) => providerName === provider)?.[1] ?? []}
-                                dateRange={dateRange}
+                                rawData={rawDataPerProvider.find(([providerName, _]) => providerName === provider)?.[1] ?? ['14d', []]}
                                 type={'status-count'}/>
                         </div>
                     </Paper>
@@ -102,8 +102,7 @@ export default function ProtocolView({requester, clients, providers, dateRange, 
                     <Paper elevation={12}>
                         <div style={{height: 400}}>
                             <LazyTimeSeries
-                                rawData={rawDataPerProvider.find(([providerName, _]) => providerName === provider)?.[1] ?? []}
-                                dateRange={dateRange}
+                                rawData={rawDataPerProvider.find(([providerName, _]) => providerName === provider)?.[1] ?? ['14d', []]}
                                 type={'status'}/>
                         </div>
                     </Paper>
@@ -131,8 +130,7 @@ export default function ProtocolView({requester, clients, providers, dateRange, 
                     <Paper elevation={12}>
                         <div style={{height: 400}}>
                             <LazyTimeSeries
-                                rawData={rawDataPerClient.find(([clientName, _]) => clientName === client)?.[1] ?? []}
-                                dateRange={dateRange}
+                                rawData={rawDataPerClient.find(([clientName, _]) => clientName === client)?.[1] ?? ['14d', []]}
                                 type={'status-count'}/>
                         </div>
                     </Paper>
@@ -144,8 +142,7 @@ export default function ProtocolView({requester, clients, providers, dateRange, 
                     <Paper elevation={12}>
                         <div style={{height: 400}}>
                             <LazyTimeSeries
-                                rawData={rawDataPerClient.find(([clientName, _]) => clientName === client)?.[1] ?? []}
-                                dateRange={dateRange}
+                                rawData={rawDataPerClient.find(([clientName, _]) => clientName === client)?.[1] ?? ['14d', []]}
                                 type={'status'}/>
                         </div>
                     </Paper>

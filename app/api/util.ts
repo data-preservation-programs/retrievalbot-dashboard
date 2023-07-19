@@ -1,6 +1,6 @@
 import {NextRequest} from "next/server";
 import {DateRange} from "@/components/types";
-import {ModuleName} from "@/util/db";
+import {ModuleName} from "@/util/retrieval";
 
 export interface ExtractedSearchParams {
     requester: string

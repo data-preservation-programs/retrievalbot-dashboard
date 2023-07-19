@@ -1,4 +1,4 @@
-import {ModuleName} from "@/util/db";
+import {ModuleName} from "@/util/retrieval";
 
 export type DateRange = '30d' | '14d' | '3d' | '24h' | '1h'
 
@@ -68,7 +68,7 @@ export function GenerateParams(requester?: string, clients?: string[], providers
 }
 
 
-export type ViewType = 'overview' | 'http' | 'graphsync' | 'bitswap' | 'logs'
+export type ViewType = 'overview' | 'http' | 'graphsync' | 'bitswap' | 'logs' | 'distribution'
 
 export interface RankBarEntry {
     id: string,

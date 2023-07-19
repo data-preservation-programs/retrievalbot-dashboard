@@ -13,7 +13,7 @@ import {
     Typography
 } from "@mui/material";
 import {useEffect, useState} from "react";
-import {ModuleName} from "@/util/db";
+import {ModuleName} from "@/util/retrieval";
 
 interface LogViewProps {
     requester: string;

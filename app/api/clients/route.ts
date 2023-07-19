@@ -1,5 +1,5 @@
 import {NextRequest, NextResponse} from "next/server";
-import {getClientsCached} from "@/util/db";
+import {getClientsCached} from "@/util/retrieval";
 import {ExtractSearchParams} from "@/app/api/util";
 
 export async function GET(request: NextRequest): Promise<NextResponse>{

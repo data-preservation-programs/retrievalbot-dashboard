@@ -6,6 +6,7 @@ import PublicIcon from '@mui/icons-material/Public';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import SyncIcon from '@mui/icons-material/Sync';
 import DescriptionIcon from '@mui/icons-material/Description';
+import MapIcon from '@mui/icons-material/Map';
 import {ViewType} from "@/components/types";
 
 interface SideBarProps {
@@ -40,6 +41,11 @@ export default function SideBar({drawerWidth, view, setView}: SideBarProps) {
             id: 'logs',
             label: 'Logs',
             icon: (<DescriptionIcon/>),
+        },
+        {
+            id: 'distribution',
+            label: 'Distribution',
+            icon: (<MapIcon/>),
         }
     ]
     return (

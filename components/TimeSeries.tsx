@@ -1,30 +1,29 @@
 'use client'
-import {TimeSeriesEntry} from "@/util/db";
+import {TimeSeriesEntry} from "@/util/retrieval";
 import {AxisFormatMap, DateFormatMap, DateRange} from "@/components/types";
 import {ResponsiveLine} from "@nivo/line";
 
 interface TimeSeriesProps {
-    dateRange: DateRange;
     type: 'client' // Per client success ratio
         | 'provider' // Per provider success ratio
         | 'status-count' // Per status count
         | 'status' // Per status ratio
         | 'total' // Total success ratio
-    rawData: TimeSeriesEntry[]
+    rawData: TimeSeriesRawData
 }
+
+export type TimeSeriesRawData = [DateRange, TimeSeriesEntry[]]
 
 
 export default function TimeSeries({
-                                             dateRange,
                                              type,
                                              rawData
                                          }: TimeSeriesProps) {
-
-    const axisFormat = AxisFormatMap[dateRange]
-    const dateFormat = DateFormatMap[dateRange]
+    const axisFormat = AxisFormatMap[rawData[0]]
+    const dateFormat = DateFormatMap[rawData[0]]
     const dataMap = new Map<string, Map<string, { count: number, count_success: number }>>();
     const totalPerDate = new Map<string, number>();
-    for (let entry of rawData) {
+    for (let entry of rawData[1]) {
         totalPerDate.set(entry.date, (totalPerDate.get(entry.date) || 0) + entry.count);
         let id: string;
         switch (type) {

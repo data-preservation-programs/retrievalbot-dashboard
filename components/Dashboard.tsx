@@ -4,6 +4,7 @@ import {DateRange, ViewType} from "@/components/types";
 import Overview from "@/components/Overview";
 import ProtocolView from "@/components/ProtocolView";
 import {LogView} from "@/components/LogView";
+import Distribution from "@/components/Distribution";
 
 export interface DashboardProps {
     requester: string
@@ -69,6 +70,8 @@ export default function Dashboard({
                     providers={providers}
                 />
             )
+        case 'distribution':
+            return <Distribution clients={clients} />
     }
     return (
         <></>

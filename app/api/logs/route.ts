@@ -1,5 +1,5 @@
 import {NextRequest, NextResponse} from "next/server";
-import {getLogs} from "@/util/db";
+import {getLogs} from "@/util/retrieval";
 import {ExtractSearchParams} from "@/app/api/util";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
