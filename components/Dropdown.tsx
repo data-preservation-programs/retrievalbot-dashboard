@@ -2,38 +2,30 @@
 
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
-import {usePathname, useRouter} from "next/navigation";
-import {GenerateParams, ParsedParams} from "@/components/types";
 
 interface DropdownProps {
-    id: 'client' | 'provider'
+    id: string;
+    label: string;
     options: string[];
-    params: ParsedParams;
+    selected: string[];
+    setSelected: (selected: string[]) => void;
 }
 
-export default function Dropdown({id, options, params}: DropdownProps) {
-    const idUpper = id.charAt(0).toUpperCase() + id.slice(1)
-    const router = useRouter();
-    const pathname = usePathname();
-    const selected = params[id]
-
+export default function Dropdown({id, label, options, selected, setSelected}: DropdownProps) {
     return (
         <Autocomplete
             color={'inherit'}
             multiple
-            id={"tags-" + id}
+            id={id}
             options={options}
             filterSelectedOptions
             renderInput={(params) => (
-                <TextField {...params} variant="standard" placeholder={idUpper}/>)}
-            defaultValue={selected}
+                <TextField {...params} variant="standard" placeholder={label}/>)}
+            value={selected}
             sx={{width: 300, color:'inherit'}}
             onChange={(event, value) => {
                 event.preventDefault();
-                if (value !== null) {
-                    params[id] = value
-                    router.push(pathname + '?' + GenerateParams(params))
-                }
+                setSelected(value);
             }}
         />
     )

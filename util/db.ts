@@ -1,5 +1,6 @@
 import {MongoClient} from 'mongodb';
 import {DateFormatMap, DateRange, DateRangeFuncMap} from "@/components/types";
+import {LRUCache} from 'lru-cache';
 
 const client = new MongoClient(process.env.MONGO_URI!)
 const taskResult = client.db('prod').collection('task_result')
@@ -14,7 +15,10 @@ export type TimeSeriesEntry = {
     count: number
 }
 
-export async function getLogs(requester: string, providers: string[], clients: string[]): Promise<any[]> {
+export async function getLogs(
+    requester: string, clients: string[],
+    providers: string[], modules: string[],
+    errorOnly: boolean, limit: number = 50): Promise<any[]> {
     const match: any = {}
     match['task.requester'] = requester
     if (providers.length > 0) {
@@ -22,6 +26,10 @@ export async function getLogs(requester: string, providers: string[], clients: s
     }
     if (clients.length > 0) {
         match['task.metadata.client'] = {$in: clients}
+    }
+    match['task.module'] = {$in: modules}
+    if (errorOnly) {
+        match['result.success'] = false
     }
     console.log("Getting logs", requester, providers, clients)
     const documents = await taskResult.aggregate([
@@ -32,14 +40,24 @@ export async function getLogs(requester: string, providers: string[], clients: s
             $sort: {created_at: -1}
         },
         {
-            $limit: 100
+            $limit: limit
         }
     ]).toArray()
     console.log("Got logs", documents.length)
     return documents
 }
 
-export async function getClients(requester: string, providers: string[]): Promise<string[]> {
+export function getClientsCached(requester: string, providers: string[]): Promise<string[]> {
+    providers.sort()
+    return cache.fetch('client#' + requester + '#' + providers.join(',')) as Promise<string[]>
+}
+
+export function getProvidersCached(requester: string, clients: string[]): Promise<string[]> {
+    clients.sort()
+    return cache.fetch('provider#' + requester + '#' + clients.join(',')) as Promise<string[]>
+}
+
+async function getClients(requester: string, providers: string[]): Promise<string[]> {
     const match: any = {}
     match['task.requester'] = requester
     if (providers.length > 0) {
@@ -66,7 +84,7 @@ export async function getClients(requester: string, providers: string[]): Promis
     return documents.map((doc: any) => doc.client)
 }
 
-export async function getProviders(requester: string, clients: string[]): Promise<string[]> {
+async function getProviders(requester: string, clients: string[]): Promise<string[]> {
     const match: any = {}
     match['task.requester'] = requester
     if (clients.length > 0) {
@@ -167,4 +185,22 @@ export async function getTimeSeries(
     return documents as TimeSeriesEntry[]
 }
 
+const cacheOptions: LRUCache.Options<string, string[], unknown> = {
+    max: 1000,
+    maxSize: 1000000,
+    sizeCalculation: (value, _) => value.length + 1,
+    allowStale: true,
+    fetchMethod: (key: string) => {
+        const [type, requester, values] = key.split('#')
+        const split = values === '' ? [] : values.split(',')
+        switch (type) {
+            case 'client':
+                return getClients(requester, split)
+            case 'provider':
+                return getProviders(requester, split)
+        }
+        return []
+    },
+}
 
+const cache = new LRUCache<string, string[]>(cacheOptions)

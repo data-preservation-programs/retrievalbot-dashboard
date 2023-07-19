@@ -1,3 +1,5 @@
+import {ModuleName} from "@/util/db";
+
 export type DateRange = '30d' | '14d' | '3d' | '24h' | '1h'
 
 export const AxisFormatMap = {
@@ -44,51 +46,26 @@ export const DateRangeFuncMap = {
     }
 }
 
-export interface ParsedParams {
-    requester: string;
-    client: string[];
-    provider: string[];
-    dateRange: DateRange;
-}
-
-function isEmpty(obj: string | string[] | undefined): boolean {
-    if (obj === undefined) {
-        return true
-    }
-    if (typeof obj === 'string') {
-        return obj === ''
-    }
-    if (Array.isArray(obj)) {
-        return obj.length === 0
-    }
-    return true
-}
-
-export function ParseParams(searchParams: { [key: string]: string | string[] | undefined }): ParsedParams {
-    const dateRange = isEmpty(searchParams['dateRange']) ? '14d' : searchParams['dateRange'] as DateRange
-    const client = isEmpty(searchParams['client']) ? [] : (searchParams['client'] as string).split(',')
-    const provider = isEmpty(searchParams['provider']) ? [] : (searchParams['provider'] as string).split(',')
-    const requester = isEmpty(searchParams['requester']) ? 'filplus' : searchParams['requester'] as string
-    return {
-        requester,
-        client,
-        provider,
-        dateRange,
-    }
-}
-
-export function GenerateParams(result: ParsedParams): string {
-    const {requester, client, provider, dateRange} = result
+export function GenerateParams(requester?: string, clients?: string[], providers?: string[], dateRange?: DateRange, moduleName?: ModuleName): string {
     const params = new URLSearchParams()
-    if (requester !== '' && requester !== 'filplus') {
+    if (requester !== undefined)
+    {
         params.set('requester', requester)
     }
-    if (client.length > 0) {
-        params.set('client', client.join(','))
+    if (clients !== undefined && clients.length > 0) {
+        params.set('clients', clients.join(' '))
     }
-    if (provider.length > 0) {
-        params.set('provider', provider.join(','))
+    if (providers !== undefined && providers.length > 0) {
+        params.set('providers', providers.join(' '))
     }
-    params.set('dateRange', dateRange)
+    if (dateRange !== undefined) {
+        params.set('dateRange', dateRange)
+    }
+    if (moduleName !== undefined) {
+        params.set('module', moduleName)
+    }
     return params.toString()
 }
+
+
+export type ViewType = 'overview' | 'http' | 'graphsync' | 'bitswap' | 'logs'

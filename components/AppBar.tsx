@@ -1,44 +1,44 @@
+'use client'
 import {AppBar as MuiAppBar, Box, Toolbar, Typography} from "@mui/material";
 import Dropdown from "@/components/Dropdown";
 import DateRangePicker from "@/components/DateRangePicker";
-import {ParsedParams} from "@/components/types";
-import {getClients, getProviders} from "@/util/db";
-import {LRUCache} from 'lru-cache';
-
-const cacheOptions: LRUCache.Options<string, string[], unknown> = {
-    max: 1000,
-    maxSize: 1000000,
-    sizeCalculation: (value, _) => value.length + 1,
-    allowStale: true,
-    fetchMethod: (key: string) => {
-        const [type, requester, values] = key.split('#')
-        const split = values === '' ? [] : values.split(',')
-        switch (type) {
-            case 'client':
-                return getClients(requester, split)
-            case 'provider':
-                return getProviders(requester, split)
-        }
-        return []
-    },
-}
-
-const cache = new LRUCache<string, string[]>(cacheOptions)
+import {DateRange, GenerateParams} from "@/components/types";
+import {useEffect, useState} from "react";
 
 interface AppBarProps {
-    params: ParsedParams
+    requester: string
+    clients: string[]
+    providers: string[]
+    dateRange: DateRange
+    setClients: (clients: string[]) => void
+    setProviders: (providers: string[]) => void
+    setDateRange: (dateRange: DateRange) => void
     drawerWidth: number
 }
 
-export default async function AppBar({
-                                         params,
-                                         drawerWidth
-                                     }: AppBarProps) {
-    const {requester, client, provider} = params
-    client.sort()
-    provider.sort()
-    const clientOptions = await cache.fetch('client#' + requester + '#' + provider.join(','))
-    const providerOptions = await cache.fetch('provider#' + requester + '#' + client.join(','))
+export default function AppBar({
+                                   requester,
+                                   clients,
+                                   providers,
+                                   dateRange,
+                                   setClients,
+                                   setProviders,
+                                   setDateRange,
+                                   drawerWidth,
+                               }: AppBarProps) {
+    const [clientsOptions, setClientsOptions] = useState<string[]>([])
+    const [providerOptions, setProviderOptions] = useState<string[]>([])
+    const getClientsUrl = '/api/clients?' + GenerateParams(requester, undefined, providers, undefined)
+    const getProvidersUrl = '/api/providers?' + GenerateParams(requester, clients, undefined, undefined)
+
+    useEffect(() => {
+        fetch(getClientsUrl).then(res => res.json()).then(setClientsOptions).catch(console.error)
+    }, [getClientsUrl])
+
+    useEffect(() => {
+        fetch(getProvidersUrl).then(res => res.json()).then(setProviderOptions).catch(console.error)
+    }, [getProvidersUrl])
+
     return (
         <MuiAppBar position="sticky" sx={{width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px`}}>
             <Toolbar>
@@ -60,11 +60,13 @@ export default async function AppBar({
                     Choose a filter to get started:
                 </Typography>
                 <Box m={2}/>
-                <Dropdown id='client' options={clientOptions!} params={params}/>
+                <Dropdown id='client' label='Client' options={clientsOptions} selected={clients}
+                          setSelected={setClients}/>
                 <Box m={2}/>
-                <Dropdown id='provider' options={providerOptions!} params={params}/>
+                <Dropdown id='provider' label='Provider' options={providerOptions} selected={providers}
+                          setSelected={setProviders}/>
                 <Box m={4}/>
-                <DateRangePicker params={params}/>
+                <DateRangePicker selected={dateRange} setSelected={setDateRange}/>
             </Toolbar>
         </MuiAppBar>)
 }

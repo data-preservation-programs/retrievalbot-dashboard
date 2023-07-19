@@ -1,35 +1,76 @@
-import {
-    Box,
-    CssBaseline,
-} from "@mui/material";
-import {ParsedParams} from "@/components/types";
-import AppBar from "@/components/AppBar";
-import SideBar from "@/components/SideBar";
+'use client'
+
+import {DateRange, ViewType} from "@/components/types";
+import Overview from "@/components/Overview";
+import ProtocolView from "@/components/ProtocolView";
+import {LogView} from "@/components/LogView";
 
 export interface DashboardProps {
-    params: ParsedParams
-    children: React.ReactNode
+    requester: string
+    clients: string[]
+    providers: string[]
+    dateRange: DateRange
+    view: ViewType
 }
 
-export default async function Dashboard({
-                                            params,
-                                            children,
+export default function Dashboard({
+                                            requester,
+                                            clients,
+                                            providers,
+                                            dateRange,
+                                            view,
                                         }: DashboardProps) {
-    const drawerWidth = 200;
+
+    switch(view) {
+        case 'overview':
+            return (
+                <Overview
+                    requester={requester}
+                    clients={clients}
+                    providers={providers}
+                    dateRange={dateRange}
+                />
+            )
+        case 'http':
+            return (
+                <ProtocolView
+                    requester={requester}
+                    clients={clients}
+                    providers={providers}
+                    dateRange={dateRange}
+                    module={'http'}
+                />
+            )
+        case 'graphsync':
+            return (
+                <ProtocolView
+                    requester={requester}
+                    clients={clients}
+                    providers={providers}
+                    dateRange={dateRange}
+                    module={'graphsync'}
+                />
+            )
+        case 'bitswap':
+            return (
+                <ProtocolView
+                    requester={requester}
+                    clients={clients}
+                    providers={providers}
+                    dateRange={dateRange}
+                    module={'bitswap'}
+                />
+            )
+        case 'logs':
+            return (
+                <LogView
+                    requester={requester}
+                    clients={clients}
+                    providers={providers}
+                />
+            )
+    }
     return (
-        <Box>
-            <CssBaseline/>
-            <AppBar
-                params={params}
-                drawerWidth={drawerWidth}
-            />
-            <SideBar
-                drawerWidth={drawerWidth}
-                params={params}
-            />
-            <Box sx={{marginLeft: `${drawerWidth}px`}}>
-                {children}
-            </Box>
-        </Box>
+        <></>
     )
 }

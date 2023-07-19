@@ -1,6 +1,7 @@
+'use client'
 import {TimeSeriesEntry} from "@/util/db";
-import ResponsiveLine from "@/components/ResponsiveLine";
 import {AxisFormatMap, DateFormatMap, DateRange} from "@/components/types";
+import {ResponsiveLine} from "@nivo/line";
 
 interface TimeSeriesProps {
     dateRange: DateRange;
@@ -13,7 +14,7 @@ interface TimeSeriesProps {
 }
 
 
-export default async function TimeSeries({
+export default function TimeSeries({
                                              dateRange,
                                              type,
                                              rawData
@@ -70,7 +71,6 @@ export default async function TimeSeries({
     }
     return (
         <ResponsiveLine
-            usePercentile={type !== 'status-count'}
             data={data}
             margin={{top: 20, right: 20, bottom: 50, left: 50}}
             curve={'monotoneX'}
@@ -79,7 +79,9 @@ export default async function TimeSeries({
             axisLeft={{
                 legendPosition: 'middle',
                 legendOffset: -40,
+                format: type == 'status-count' ? undefined : (value: number) => `${(value * 100).toFixed(0)}%`
             }}
+            yFormat={type == 'status-count' ? undefined : (value: any) => `${(value * 100).toFixed(2)}%`}
             xScale={{type: 'time', format: dateFormat, useUTC: true}}
             axisBottom={{
                 format: axisFormat,
