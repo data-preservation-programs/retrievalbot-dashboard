@@ -8,6 +8,7 @@ import SyncIcon from '@mui/icons-material/Sync';
 import DescriptionIcon from '@mui/icons-material/Description';
 import MapIcon from '@mui/icons-material/Map';
 import {ViewType} from "@/components/types";
+import { DoneAll } from "@mui/icons-material";
 
 interface SideBarProps {
     drawerWidth: number
@@ -46,6 +47,12 @@ export default function SideBar({drawerWidth, view, setView}: SideBarProps) {
             id: 'distribution',
             label: 'Distribution',
             icon: (<MapIcon/>),
+        }
+        ,
+        {
+            id: 'cidchecker',
+            label: 'CID Checker',
+            icon: (<DoneAll/>),
         }
     ]
     return (
