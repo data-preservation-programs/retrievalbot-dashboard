@@ -4,9 +4,11 @@ import {useEffect, useState} from "react";
 import {DateRange, GenerateParams, RankBarEntry} from "@/components/types";
 import Grid from "@mui/material/Grid/Grid";
 import {Paper, Typography} from "@mui/material";
-import {ModuleName, TimeSeriesEntry} from "@/util/retrieval";
+import {ModuleName, OverviewInfoErrorBreakdown, OverviewTimeSeriesEntry, Results, TimeSeriesEntry, Error,  ModuleDayCount} from "@/util/retrieval";
 import dynamic from "next/dynamic";
-import {TimeSeriesRawData} from "@/components/TimeSeries";
+import {OverviewTimeSeriesRawData, TimeSeriesRawData} from "@/components/TimeSeries";
+import StackedApacheEchart from "./ApacheStackedBar";
+import PercentStackedApacheEchart from "./ApacheStackedBarPercent";
 
 interface OverviewProps {
     requester: string;
@@ -35,13 +37,22 @@ export default function Overview({requester, clients, providers, dateRange}: Ove
         percentage: number,
         setPercentage: (_: number) => void
     }[] = []
+    const overviewDataList: {
+        overviewTimeSeries: OverviewTimeSeriesRawData,
+        setOverviewTimeSeries: (_: OverviewTimeSeriesRawData) => void,
+    }[] = []
+    const [overviewTimeSeries, setOverviewTimeSeries] = useState<OverviewTimeSeriesRawData>([dateRange, []])
+    overviewDataList.push({overviewTimeSeries, setOverviewTimeSeries})
     for (const name of ['http', 'graphsync', 'bitswap'] as ModuleName[]) {
         // eslint-disable-next-line react-hooks/rules-of-hooks
         const [timeSeries, setTimeSeries] = useState<TimeSeriesRawData>([dateRange, []])
         // eslint-disable-next-line react-hooks/rules-of-hooks
+        
+        // eslint-disable-next-line react-hooks/rules-of-hooks
         const [rankEntries, setRankEntries] = useState<RankBarEntry[]>([])
         // eslint-disable-next-line react-hooks/rules-of-hooks
         const [percentage, setPercentage] = useState<number>(0)
+        
         rawDataList.push({
             name,
             timeSeries,
@@ -54,8 +65,14 @@ export default function Overview({requester, clients, providers, dateRange}: Ove
     }
 
     useEffect(() => {
-        if (clients.length === 0 && providers.length === 0) {
-            return
+        if (clients.length === 0 && providers.length === 0) {       
+            fetch('/api/overviewinfo?' + 
+            GenerateParams(dateRange))
+            .then(res => res.json())
+            .then((r: OverviewTimeSeriesEntry[]) => {
+                overviewDataList[0].setOverviewTimeSeries([dateRange, r])
+            }).catch(console.error)
+            return;
         }
         for (const rawData of rawDataList) {
             fetch('/api/series?' + GenerateParams(requester, clients, providers, dateRange, rawData.name))
@@ -89,11 +106,7 @@ export default function Overview({requester, clients, providers, dateRange}: Ove
     }, [requester, clients, providers, dateRange])
 
     if (clients.length === 0 && providers.length === 0) {
-        return (
-            <Typography variant="body1">
-                Please select at least one client or provider.
-            </Typography>
-        )
+        return overviewInfoView(overviewDataList);
     }
 
     return (
@@ -154,3 +167,141 @@ export default function Overview({requester, clients, providers, dateRange}: Ove
         </div>
     )
 }
+
+function overviewInfoView(overviewDataList: { overviewTimeSeries: OverviewTimeSeriesRawData; setOverviewTimeSeries: (_: OverviewTimeSeriesRawData) => void; }[]) {
+    var totalCalls = new Map([
+        ["http", 0],
+        ["graphsync", 0],
+        ["bitswap", 0]
+    ]);
+
+    var totalRequestByDayOverViewInfoData: any[] = [];
+    var totalErrorBreakdownByDayOverViewInfoData: any[] = [];
+    var totalSuccessVsFailureByDayOverViewInfoData: any[] = [];
+
+    // remove the first day because it don't have a full days worth of data.
+    overviewDataList[0].overviewTimeSeries[1].forEach(function (day: any) {
+        var successCount = 0;
+        var failureCount = 0;
+        var totalModuleRequestByDay: ModuleDayCount[] = [];
+        const errors = new Map<string, Error>();
+        day.results.forEach(function (r: Results) {
+            const count = totalCalls.get(r.module) as number;
+            totalCalls.set(r.module, count + Number(r.total));
+            totalModuleRequestByDay.push({ module: r.module, total: Number(r.total) });
+            r.result.forEach(function (e) {
+                if (e.errors.success) {
+                    successCount += Number(e.total);
+                }
+                else {
+                    var err_code = e.errors.error_code as string;
+                    if (!errors.has(err_code)) {
+                        errors.set(err_code, { error_code: err_code, total: 0 });
+                    }
+ 
+                    var errorObject = errors.get(err_code) as Error;
+                    errorObject.total += Number(e.total);
+                    failureCount += Number(e.total);
+                }
+            });
+        });
+        totalErrorBreakdownByDayOverViewInfoData.push(totalErrorBreakdownByDayOverViewInfo(day._id, { id: day._id, errors: Array.from(errors.values()) }))
+        totalRequestByDayOverViewInfoData.push(totalRequestByDayOverViewInfo(day._id, totalModuleRequestByDay));
+        totalSuccessVsFailureByDayOverViewInfoData.push(totalSuccessVsFAilureOverViewInfo(day._id, {success: successCount, failure: failureCount }));
+    });
+
+    const totalCallsData = [
+        { id: "http", value: totalCalls.get("http") },
+        { id: "bitswap", value: totalCalls.get("bitswap") },
+        { id: "graphsync", value: totalCalls.get("graphsync") },
+    ];
+
+    var overviewInfoPercentData:{title: string, data: any[]}[] = []
+    overviewInfoPercentData.push({title: "Total Calls Success VS Failure Per Day", data: totalSuccessVsFailureByDayOverViewInfoData})
+    var overviewInfoData:{title: string, data: any[]}[] = []
+    overviewInfoData.push({title: "Total Calls Per Module Per Day", data: totalRequestByDayOverViewInfoData})
+    overviewInfoData.push({title: "Total Errors Per Day", data: totalErrorBreakdownByDayOverViewInfoData})
+
+    //return <Echart></Echart>
+
+    return (<div>
+        <Grid container spacing={12} key={0} p={3}>
+            {totalCallsData.map(({ id, value }, index) => (
+                <Grid item md={4} key={index}>
+                    <Paper elevation={12}>
+                        <Typography variant="subtitle1" align={'center'}>
+                            {id.toUpperCase()} Total Call Count Last 30 days
+                        </Typography>
+                        <Typography variant="h4" align={'center'}>
+                            {value}
+                        </Typography>
+                    </Paper>
+                </Grid>))}
+        </Grid>
+        <Grid container spacing={12} p={3} key={0}>
+        {overviewInfoPercentData.map(({ title, data }, index) => (
+        <Grid item md={12} key={index}>
+                <Typography variant="h6">
+                {title}
+                </Typography>
+                <Paper elevation={12}>
+                    <div>
+                        <PercentStackedApacheEchart data={data}/>
+                    </div>
+                </Paper>
+            </Grid>
+        ))}
+        </Grid>
+        <Grid container spacing={12} p={3}>
+        {overviewInfoData.map(({ title, data }, index) => (
+        <Grid item md={12} key={index}>
+                <Typography variant="h6">
+                {title}
+                </Typography>
+                <Paper elevation={12}>
+                    <div>
+                        <StackedApacheEchart data={data}/>
+                    </div>
+                </Paper>
+            </Grid>
+        ))}
+        </Grid>
+    </div>);
+}
+
+export function totalRequestByDayOverViewInfo(day: string, totalPerModule: ModuleDayCount[]) {
+    var object = {}
+    // @ts-ignore
+    object["id"] = day
+    totalPerModule.forEach(e => {
+        // @ts-ignore
+        object[e.module] = e.total
+    })
+
+    return object
+}
+
+export function totalErrorBreakdownByDayOverViewInfo(day: string, totalErrors: OverviewInfoErrorBreakdown) {
+    var object = {}
+    // @ts-ignore
+    object["id"] = day
+    totalErrors.errors.forEach(e => {
+        // @ts-ignore
+        object[e.error_code] = e.total
+    })
+
+    return object
+}
+
+export function totalSuccessVsFAilureOverViewInfo(day: string, successVsFailure: any) {
+    var object = {}
+    // @ts-ignore
+    object["id"] = day
+    // @ts-ignore
+    object["success"] = successVsFailure["success"]
+    // @ts-ignore
+    object["failure"] = successVsFailure["failure"]
+
+    return object
+}
+

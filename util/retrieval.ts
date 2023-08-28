@@ -3,6 +3,8 @@ import {DateFormatMap, DateRange, DateRangeFuncMap} from "@/components/types";
 import {LRUCache} from 'lru-cache';
 
 const client = new MongoClient(process.env.MONGO_URI!)
+const taskResultDailyTimeSeries = client.db('prod').collection<OverviewTimeSeriesEntry>('taskResultDailyTimeSeries')
+
 const taskResult = client.db('prod').collection('task_result')
 
 export type ModuleName = 'graphsync' | 'http' | 'bitswap'
@@ -15,12 +17,75 @@ export type TimeSeriesEntry = {
     count: number
 }
 
+export type OverviewTimeSeriesRawData = [DateRange, OverviewTimeSeriesEntry[]]
+
+export interface OverviewTimeSeriesEntry {
+    _id: string;
+    results: Results[];
+    total: Total;
+}
+
+export interface Results {
+    module: string;
+    result: Result[];
+    total: Total;
+}
+
+export interface Result {
+    errors: Errors;
+    total: Total;
+}
+
+export interface Total {
+    '$numberLong': number;
+}
+
+export interface Errors {
+    error_code?: string;
+    success: boolean;
+}
+
+export interface OverviewInfoSuccessVsFailures {
+    id: string,
+    success: number,
+    failure: number;
+}
+
+export interface Error {
+    error_code: string,
+    total:  number
+}
+
+export interface DayCount {
+    id: string,
+    totals: ModuleDayCount[]
+}
+export interface ModuleDayCount {
+module: string,
+total:  number
+}
+export interface OverviewInfoErrorBreakdown {
+    id: string,
+    errors: Error[]
+}
+
+export async function getOverviewInfo(): Promise<OverviewTimeSeriesEntry[]> {
+    console.log("Calling get overview info")
+    var documents = await taskResultDailyTimeSeries.find().sort({"_id": -1}).limit(31).toArray()
+    console.log("Got time series", documents.length)
+
+    return documents as OverviewTimeSeriesEntry[]
+}
+
 export async function getLogs(
     requester: string, clients: string[],
     providers: string[], modules: string[],
     errorOnly: boolean, limit: number = 50): Promise<any[]> {
     const match: any = {}
     match['task.requester'] = requester
+    if (providers.length == 0 && clients.length == 0) {
+        return []
+    }
     if (providers.length > 0) {
         match['task.provider.id'] = {$in: providers}
     }
@@ -31,6 +96,7 @@ export async function getLogs(
     if (errorOnly) {
         match['result.success'] = false
     }
+
     console.log("Getting logs", requester, providers, clients)
     const documents = await taskResult.aggregate([
         {

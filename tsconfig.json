@@ -41,7 +41,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts"
-  ],
+, "components/apachechart.tx"  ],
   "exclude": [
     "node_modules"
   ]
