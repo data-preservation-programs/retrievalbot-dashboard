@@ -1,5 +1,5 @@
 'use client'
-import {TimeSeriesEntry} from "@/util/retrieval";
+import {OverviewTimeSeriesEntry, TimeSeriesEntry} from "@/util/retrieval";
 import {AxisFormatMap, DateFormatMap, DateRange} from "@/components/types";
 import {ResponsiveLine} from "@nivo/line";
 
@@ -13,7 +13,7 @@ interface TimeSeriesProps {
 }
 
 export type TimeSeriesRawData = [DateRange, TimeSeriesEntry[]]
-
+export type OverviewTimeSeriesRawData = [DateRange, OverviewTimeSeriesEntry[]]
 
 export default function TimeSeries({
                                              type,

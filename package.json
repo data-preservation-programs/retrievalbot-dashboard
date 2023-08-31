@@ -17,13 +17,17 @@
     "@nivo/bar": "^0.83.0",
     "@nivo/core": "^0.83.0",
     "@nivo/line": "^0.83.0",
+    "@nivo/pie": "^0.83.0",
     "@types/pg": "^8.10.2",
+    "echarts": "^5.4.3",
+    "echarts-for-react": "^3.0.2",
     "lru-cache": "^10.0.0",
     "mongodb": "^5.7.0",
     "next": "13.4.10",
     "pg": "^8.11.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-echarts": "github:daiad/react-echarts",
     "xbytes": "^1.8.0"
   },
   "devDependencies": {
