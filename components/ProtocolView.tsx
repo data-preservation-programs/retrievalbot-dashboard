@@ -8,7 +8,7 @@ import {DateRange, GenerateParams} from "@/components/types";
 import {useEffect, useState} from "react";
 import { FormLabel } from "@mui/material";
 import {OverviewTimeSeriesRawData, TimeSeriesRawData} from "@/components/TimeSeries";
-import { totalErrorBreakdownByDayOverViewInfo, totalSuccessVsFAilureOverViewInfo } from "./Overview";
+import { totalErrorBreakdownByDayOverViewInfo, totalSuccessVsFailureOverViewInfo } from "./Overview";
 import StackedApacheEchart from "./ApacheStackedBar";
 import PercentStackedApacheEchart from "./ApacheStackedBarPercent";
 
@@ -201,7 +201,7 @@ function overviewInfoView(overviewDataList: { overviewTimeSeries: OverviewTimeSe
             }
         });
         totalErrorBreakdownByDayOverViewInfoData.push(totalErrorBreakdownByDayOverViewInfo(day._id, { id: day._id, errors: Array.from(errors.values()) }))
-        totalSuccessVsFailureByDayOverViewInfoData.push(totalSuccessVsFAilureOverViewInfo(day._id, {success: successCount, failure: failureCount }));
+        totalSuccessVsFailureByDayOverViewInfoData.push(totalSuccessVsFailureOverViewInfo(day._id, {success: successCount, failure: failureCount }));
     });
 
     const totalCallsData = [

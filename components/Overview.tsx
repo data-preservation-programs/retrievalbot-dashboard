@@ -9,6 +9,7 @@ import dynamic from "next/dynamic";
 import {OverviewTimeSeriesRawData, TimeSeriesRawData} from "@/components/TimeSeries";
 import StackedApacheEchart from "./ApacheStackedBar";
 import PercentStackedApacheEchart from "./ApacheStackedBarPercent";
+import Alert from '@mui/material/Alert';
 
 interface OverviewProps {
     requester: string;
@@ -207,7 +208,7 @@ function overviewInfoView(overviewDataList: { overviewTimeSeries: OverviewTimeSe
         });
         totalErrorBreakdownByDayOverViewInfoData.push(totalErrorBreakdownByDayOverViewInfo(day._id, { id: day._id, errors: Array.from(errors.values()) }))
         totalRequestByDayOverViewInfoData.push(totalRequestByDayOverViewInfo(day._id, totalModuleRequestByDay));
-        totalSuccessVsFailureByDayOverViewInfoData.push(totalSuccessVsFAilureOverViewInfo(day._id, {success: successCount, failure: failureCount }));
+        totalSuccessVsFailureByDayOverViewInfoData.push(totalSuccessVsFailureOverViewInfo(day._id, {success: successCount, failure: failureCount }));
     });
 
     const totalCallsData = [
@@ -225,6 +226,11 @@ function overviewInfoView(overviewDataList: { overviewTimeSeries: OverviewTimeSe
     //return <Echart></Echart>
 
     return (<div>
+        <Grid item xs={12}>
+            <Alert severity="info">
+                Data has been collected from several Retrieval Bot instances run by <strong>Protocol Labs, Filecoin Foundation, Slingshot, Gravity Assist, New Web Group, </strong> and <strong>Triton</strong>.
+            </Alert>
+        </Grid>
         <Grid container spacing={12} key={0} p={3}>
             {totalCallsData.map(({ id, value }, index) => (
                 <Grid item md={4} key={index}>
@@ -293,7 +299,7 @@ export function totalErrorBreakdownByDayOverViewInfo(day: string, totalErrors: O
     return object
 }
 
-export function totalSuccessVsFAilureOverViewInfo(day: string, successVsFailure: any) {
+export function totalSuccessVsFailureOverViewInfo(day: string, successVsFailure: any) {
     var object = {}
     // @ts-ignore
     object["id"] = day
