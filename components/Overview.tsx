@@ -208,7 +208,7 @@ function overviewInfoView(overviewDataList: { overviewTimeSeries: OverviewTimeSe
         });
         totalErrorBreakdownByDayOverViewInfoData.push(totalErrorBreakdownByDayOverViewInfo(day._id, { id: day._id, errors: Array.from(errors.values()) }))
         totalRequestByDayOverViewInfoData.push(totalRequestByDayOverViewInfo(day._id, totalModuleRequestByDay));
-        totalSuccessVsFailureByDayOverViewInfoData.push(totalSuccessVsFAilureOverViewInfo(day._id, {success: successCount, failure: failureCount }));
+        totalSuccessVsFailureByDayOverViewInfoData.push(totalSuccessVsFailureOverViewInfo(day._id, {success: successCount, failure: failureCount }));
     });
 
     const totalCallsData = [
@@ -299,7 +299,7 @@ export function totalErrorBreakdownByDayOverViewInfo(day: string, totalErrors: O
     return object
 }
 
-export function totalSuccessVsFAilureOverViewInfo(day: string, successVsFailure: any) {
+export function totalSuccessVsFailureOverViewInfo(day: string, successVsFailure: any) {
     var object = {}
     // @ts-ignore
     object["id"] = day
