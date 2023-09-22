@@ -118,7 +118,6 @@ export function LogView({requester, clients, providers}: LogViewProps) {
                             <TableCell>Created At</TableCell>
                             <TableCell align="right">Deal ID</TableCell>
                             <TableCell align="right">Provider</TableCell>
-                            <TableCell align="right">Retriever</TableCell>
                             <TableCell align="right">Protocol</TableCell>
                             <TableCell align="right">Result</TableCell>
                             <TableCell align="right">Error Message</TableCell>
@@ -126,11 +125,10 @@ export function LogView({requester, clients, providers}: LogViewProps) {
                     </TableHead>
                     <TableBody>
                         {logs.map((log) => (
-                            <TableRow key={log._id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                            <TableRow key={log._id} sx={{ backgroundColor: log.result.success ? 'none' : '#ffd9d9', '&:last-child td, &:last-child th': { border: 0 }} }>
                                 <TableCell component='th' scope='row'>{log.created_at.toLocaleString()}</TableCell>
                                 <TableCell align='right'>{log.task.metadata.deal_id}</TableCell>
                                 <TableCell align='right'>{log.task.provider.id}</TableCell>
-                                <TableCell align='right'>{log.retriever.isp}</TableCell>
                                 <TableCell align='right'>{log.task.module}</TableCell>
                                 <TableCell align='right'>{log.result.success ? 'success' : log.result.error_code}</TableCell>
                                 <TableCell align='right' sx={{
