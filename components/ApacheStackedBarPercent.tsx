@@ -23,6 +23,7 @@ export default function PercentStackedApacheEchart({data} : any) {
       });
     })
 
+  var colorPalette = ['#92cc76', '#ef6666'];
   keys.forEach(key => {
     var values: number[] = []
     var index:number  = 0;
@@ -32,16 +33,17 @@ export default function PercentStackedApacheEchart({data} : any) {
       values.push((100 * val / totals[index++]).toFixed(2))
     });
 
-    stackedData.push(
-        {
-          name: key,
-          type: 'bar',
-          stack: true,
-          emphasis: {
-            focus: 'series'
-          },
-          data: values
-        })
+    var item = {
+      name: key,
+      type: 'bar',
+      stack: true,
+      emphasis: {
+        focus: 'series'
+      },
+      data: values,
+      color: colorPalette[keys.indexOf(key)]
+    };
+    stackedData.push(item);
   })
 
   return <ReactECharts option={{
