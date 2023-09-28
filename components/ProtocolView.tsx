@@ -11,6 +11,7 @@ import {OverviewTimeSeriesRawData, TimeSeriesRawData} from "@/components/TimeSer
 import { totalErrorBreakdownByDayOverViewInfo, totalSuccessVsFailureOverViewInfo } from "./Overview";
 import StackedApacheEchart from "./ApacheStackedBar";
 import PercentStackedApacheEchart from "./ApacheStackedBarPercent";
+import Box from '@mui/material/Box';
 
 interface ProtocolViewProps {
     requester: string;
@@ -98,25 +99,25 @@ export default function ProtocolView({requester, clients, providers, dateRange, 
                     <Typography variant="h6">
                         Provider {provider} Status Breakdown (Count)
                     </Typography>
-                    <Paper elevation={12}>
+                    <Box>
                         <div style={{height: 400}}>
                             <LazyTimeSeries
                                 rawData={rawDataPerProvider.find(([providerName, _]) => providerName === provider)?.[1] ?? ['14d', []]}
                                 type={'status-count'}/>
                         </div>
-                    </Paper>
+                    </Box>
                 </Grid>
                 <Grid item md={5}>
                     <Typography variant="h6">
                         Provider {provider} Status Breakdown (Ratio)
                     </Typography>
-                    <Paper elevation={12}>
+                    <Box>
                         <div style={{height: 400}}>
                             <LazyTimeSeries
                                 rawData={rawDataPerProvider.find(([providerName, _]) => providerName === provider)?.[1] ?? ['14d', []]}
                                 type={'status'}/>
                         </div>
-                    </Paper>
+                    </Box>
                 </Grid>
             </Grid>
             <Grid container spacing={10} p={3}>
@@ -138,25 +139,25 @@ export default function ProtocolView({requester, clients, providers, dateRange, 
                     <Typography variant="h6">
                         Client {client} Status Breakdown (Count)
                     </Typography>
-                    <Paper elevation={12}>
+                    <Box>
                         <div style={{height: 400}}>
                             <LazyTimeSeries
                                 rawData={rawDataPerClient.find(([clientName, _]) => clientName === client)?.[1] ?? ['14d', []]}
                                 type={'status-count'}/>
                         </div>
-                    </Paper>
+                    </Box>
                 </Grid>
                 <Grid item md={5}>
                     <Typography variant="h6">
                         Client {client} Status Breakdown (Ratio)
                     </Typography>
-                    <Paper elevation={12}>
+                    <Box>
                         <div style={{height: 400}}>
                             <LazyTimeSeries
                                 rawData={rawDataPerClient.find(([clientName, _]) => clientName === client)?.[1] ?? ['14d', []]}
                                 type={'status'}/>
                         </div>
-                    </Paper>
+                    </Box>
                 </Grid>
             </Grid>
         </div>
@@ -216,14 +217,14 @@ function overviewInfoView(overviewDataList: { overviewTimeSeries: OverviewTimeSe
         <Grid container spacing={10} key={0} p={3}> 
             {totalCallsData.map(({ id, value }, index) => (
                 <Grid item md={4} key={index}>
-                    <Paper elevation={12}>
+                    <Box>
                         <Typography variant="subtitle1" align={'center'}>
                             {id.toUpperCase()} Total Call Count Last 30 days
                         </Typography>
                         <Typography variant="h4" align={'center'}>
                             {value}
                         </Typography>
-                    </Paper>
+                    </Box>
                 </Grid>))}
         </Grid>
         <Grid container spacing={12} p={3} key={0}>
@@ -232,11 +233,11 @@ function overviewInfoView(overviewDataList: { overviewTimeSeries: OverviewTimeSe
                 <Typography variant="h6">
                 {title}
                 </Typography>
-                <Paper elevation={12}>
+                <Box>
                     <div>
                         <PercentStackedApacheEchart data={data}/>
                     </div>
-                </Paper>
+                </Box>
             </Grid>
         ))}
         </Grid>
@@ -246,11 +247,11 @@ function overviewInfoView(overviewDataList: { overviewTimeSeries: OverviewTimeSe
                 <Typography variant="h6">
                 {title}
                 </Typography>
-                <Paper elevation={12}>
+                <Box>
                     <div>
                         <StackedApacheEchart data={data}/>
                     </div>
-                </Paper>
+                </Box>
             </Grid>
         ))}
         </Grid>
