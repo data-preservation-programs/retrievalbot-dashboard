@@ -10,6 +10,7 @@ import {OverviewTimeSeriesRawData, TimeSeriesRawData} from "@/components/TimeSer
 import StackedApacheEchart from "./ApacheStackedBar";
 import PercentStackedApacheEchart from "./ApacheStackedBarPercent";
 import Alert from '@mui/material/Alert';
+import Box from '@mui/material/Box'
 
 interface OverviewProps {
     requester: string;
@@ -115,14 +116,14 @@ export default function Overview({requester, clients, providers, dateRange}: Ove
             <Grid container spacing={10} key={0} p={3}>
                 {rawDataList.map(({name, percentage}, index) => (
                     <Grid item md={2} key={index}>
-                        <Paper elevation={12} >
+                        <Box>
                             <Typography variant="subtitle1" align={'center'}>
                                 {name.toUpperCase()} Total Success Rate
                             </Typography>
                             <Typography variant="h4" align={'center'}>
                                 {(percentage * 100).toFixed(2)} %
                             </Typography>
-                        </Paper>
+                        </Box>
                     </Grid>))
                 }
             </Grid>
@@ -132,36 +133,36 @@ export default function Overview({requester, clients, providers, dateRange}: Ove
                         <Typography variant="h6">
                             {name.toUpperCase()} Retrieval Success Ratio Per Client
                         </Typography>
-                        <Paper elevation={12}>
+                        <Box>
                             <div style={{height: 400}}>
                                 <LazyTimeSeries
                                     rawData={timeSeries}
                                     type={'client'}/>
                             </div>
-                        </Paper>
+                        </Box>
                     </Grid>
                     <Grid item md={4}>
                         <Typography variant="h6">
                             {name.toUpperCase()} Retrieval Success Ratio Per Provider
                         </Typography>
-                        <Paper elevation={12}>
+                        <Box>
                             <div style={{height: 400}}>
                                 <LazyTimeSeries
                                     rawData={timeSeries}
                                     type={'provider'}/>
                             </div>
-                        </Paper>
+                        </Box>
                     </Grid>
                     <Grid item md={4}>
                         <Typography variant="h6">
                             {name.toUpperCase()} Provider Leaderboard
                         </Typography>
-                        <Paper elevation={12}>
+                        <Box>
                             <div style={{height: 400}}>
                                 <LazyRankBar
                                     rawData={rankEntries}/>
                             </div>
-                        </Paper>
+                        </Box>
                     </Grid>
                 </Grid>
             ))}
@@ -231,44 +232,40 @@ function overviewInfoView(overviewDataList: { overviewTimeSeries: OverviewTimeSe
                 Data has been collected from several Retrieval Bot instances run by <strong>Protocol Labs, Filecoin Foundation, Slingshot, Gravity Assist, New Web Group, </strong> and <strong>Triton</strong>.
             </Alert>
         </Grid>
-        <Grid container spacing={12} key={0} p={3}>
+        <Grid container spacing={3} key={0} p={3}>
             {totalCallsData.map(({ id, value }, index) => (
                 <Grid item md={4} key={index}>
-                    <Paper elevation={12}>
+                    <Box>
                         <Typography variant="subtitle1" align={'center'}>
                             {id.toUpperCase()} Total Call Count Last 30 days
                         </Typography>
                         <Typography variant="h4" align={'center'}>
                             {value}
                         </Typography>
-                    </Paper>
+                    </Box>
                 </Grid>))}
         </Grid>
-        <Grid container spacing={12} p={3} key={0}>
+        <Grid container spacing={5} p={3} key={0}>
         {overviewInfoPercentData.map(({ title, data }, index) => (
         <Grid item md={12} key={index}>
                 <Typography variant="h6">
                 {title}
                 </Typography>
-                <Paper elevation={12}>
-                    <div>
-                        <PercentStackedApacheEchart data={data}/>
-                    </div>
-                </Paper>
+                <Box>
+                    <PercentStackedApacheEchart data={data}/>
+                </Box>
             </Grid>
         ))}
         </Grid>
-        <Grid container spacing={12} p={3}>
+        <Grid container spacing={5} p={3}>
         {overviewInfoData.map(({ title, data }, index) => (
         <Grid item md={12} key={index}>
                 <Typography variant="h6">
                 {title}
                 </Typography>
-                <Paper elevation={12}>
-                    <div>
-                        <StackedApacheEchart data={data}/>
-                    </div>
-                </Paper>
+                <Box>
+                    <StackedApacheEchart data={data}/>
+                </Box>
             </Grid>
         ))}
         </Grid>
