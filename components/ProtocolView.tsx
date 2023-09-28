@@ -11,6 +11,7 @@ import {OverviewTimeSeriesRawData, TimeSeriesRawData} from "@/components/TimeSer
 import { totalErrorBreakdownByDayOverViewInfo, totalSuccessVsFailureOverViewInfo } from "./Overview";
 import StackedApacheEchart from "./ApacheStackedBar";
 import PercentStackedApacheEchart from "./ApacheStackedBarPercent";
+import SliderHelp from "./SliderHelp";
 
 interface ProtocolViewProps {
     requester: string;
@@ -234,6 +235,7 @@ function overviewInfoView(overviewDataList: { overviewTimeSeries: OverviewTimeSe
                 </Typography>
                 <Paper elevation={12}>
                     <div>
+                        <SliderHelp/>
                         <PercentStackedApacheEchart data={data}/>
                     </div>
                 </Paper>
@@ -248,6 +250,7 @@ function overviewInfoView(overviewDataList: { overviewTimeSeries: OverviewTimeSe
                 </Typography>
                 <Paper elevation={12}>
                     <div>
+                        <SliderHelp/>
                         <StackedApacheEchart data={data}/>
                     </div>
                 </Paper>

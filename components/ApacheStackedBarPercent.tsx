@@ -54,7 +54,7 @@ export default function PercentStackedApacheEchart({data} : any) {
           xAxisIndex: [0],
           filterMode: 'filter'
       },
-  ],
+    ],
     tooltip: {
       trigger: 'axis',
       axisPointer: {
