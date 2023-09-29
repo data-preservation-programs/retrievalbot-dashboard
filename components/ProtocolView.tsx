@@ -234,10 +234,8 @@ function overviewInfoView(overviewDataList: { overviewTimeSeries: OverviewTimeSe
                 {title}
                 </Typography>
                 <Paper elevation={12}>
-                    <div>
-                        <PercentStackedApacheEchart data={data}/>
-                        <SliderHelp/>
-                    </div>
+                    <PercentStackedApacheEchart data={data}/>
+                    <SliderHelp/>
                 </Paper>
             </Grid>
         ))}
@@ -249,10 +247,8 @@ function overviewInfoView(overviewDataList: { overviewTimeSeries: OverviewTimeSe
                 {title}
                 </Typography>
                 <Paper elevation={12}>
-                    <div>
-                        <StackedApacheEchart data={data}/>
-                        <SliderHelp/>
-                    </div>
+                    <StackedApacheEchart data={data}/>
+                    <SliderHelp/>
                 </Paper>
             </Grid>
         ))}
