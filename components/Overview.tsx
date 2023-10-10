@@ -10,6 +10,7 @@ import {OverviewTimeSeriesRawData, TimeSeriesRawData} from "@/components/TimeSer
 import StackedApacheEchart from "./ApacheStackedBar";
 import PercentStackedApacheEchart from "./ApacheStackedBarPercent";
 import Alert from '@mui/material/Alert';
+import SliderHelp from "./SliderHelp";
 
 interface OverviewProps {
     requester: string;
@@ -251,9 +252,8 @@ function overviewInfoView(overviewDataList: { overviewTimeSeries: OverviewTimeSe
                 {title}
                 </Typography>
                 <Paper elevation={12}>
-                    <div>
-                        <PercentStackedApacheEchart data={data}/>
-                    </div>
+                    <PercentStackedApacheEchart data={data} style={{ flex: 1 }}/>
+                    <SliderHelp />
                 </Paper>
             </Grid>
         ))}
@@ -265,9 +265,8 @@ function overviewInfoView(overviewDataList: { overviewTimeSeries: OverviewTimeSe
                 {title}
                 </Typography>
                 <Paper elevation={12}>
-                    <div>
-                        <StackedApacheEchart data={data}/>
-                    </div>
+                    <StackedApacheEchart data={data}/>
+                    <SliderHelp/>
                 </Paper>
             </Grid>
         ))}
