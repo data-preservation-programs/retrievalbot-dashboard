@@ -219,7 +219,7 @@ function overviewInfoView(overviewDataList: { overviewTimeSeries: OverviewTimeSe
                 <Grid item md={4} key={index}>
                     <Paper elevation={12}>
                         <Typography variant="subtitle1" align={'center'}>
-                            {id.toUpperCase()} Total Call Count Last 30 days
+                            {id != "http" ? id.toUpperCase() : "HTTP Piece"} Total Call Count Last 30 days
                         </Typography>
                         <Typography variant="h4" align={'center'}>
                             {value}
