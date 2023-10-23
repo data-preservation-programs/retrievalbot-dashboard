@@ -25,7 +25,7 @@ export default function SideBar({drawerWidth, view, setView}: SideBarProps) {
         },
         {
             id: 'http',
-            label: 'HTTP',
+            label: 'HTTP Piece',
             icon: (<PublicIcon/>),
         },
         {
