@@ -180,6 +180,9 @@ function overviewInfoView(overviewDataList: { overviewTimeSeries: OverviewTimeSe
     var totalRequestByDayOverViewInfoData: any[] = [];
     var totalErrorBreakdownByDayOverViewInfoData: any[] = [];
     var totalSuccessVsFailureByDayOverViewInfoData: any[] = [];
+    var totalErrorsByDayOverViewInfoData: any[] = [];
+
+    const error_codes = new Set<string>();
 
     // remove the first day because it don't have a full days worth of data.
     overviewDataList[0].overviewTimeSeries[1].forEach(function (day: any) {
@@ -199,6 +202,7 @@ function overviewInfoView(overviewDataList: { overviewTimeSeries: OverviewTimeSe
                     var err_code = e.errors.error_code as string;
                     if (!errors.has(err_code)) {
                         errors.set(err_code, { error_code: err_code, total: 0 });
+                        error_codes.add(err_code)
                     }
  
                     var errorObject = errors.get(err_code) as Error;
@@ -212,6 +216,14 @@ function overviewInfoView(overviewDataList: { overviewTimeSeries: OverviewTimeSe
         totalSuccessVsFailureByDayOverViewInfoData.push(totalSuccessVsFailureOverViewInfo(day._id, {success: successCount, failure: failureCount }));
     });
 
+    totalErrorBreakdownByDayOverViewInfoData.forEach(function (day: any) {
+        error_codes.forEach(error => {
+            if (!(error in day)) {
+                day[error] = 0;
+            }
+        });
+    });
+
     const totalCallsData = [
         { id: "http", value: totalCalls.get("http") },
         { id: "bitswap", value: totalCalls.get("bitswap") },
@@ -223,6 +235,7 @@ function overviewInfoView(overviewDataList: { overviewTimeSeries: OverviewTimeSe
     var overviewInfoData:{title: string, data: any[]}[] = []
     overviewInfoData.push({title: "Total Calls Per Module Per Day", data: totalRequestByDayOverViewInfoData})
     overviewInfoData.push({title: "Total Errors Per Day", data: totalErrorBreakdownByDayOverViewInfoData})
+    totalErrorsByDayOverViewInfoData.push({title: "Errors by Percentage", data: totalErrorBreakdownByDayOverViewInfoData})
 
     //return <Echart></Echart>
 
@@ -258,18 +271,31 @@ function overviewInfoView(overviewDataList: { overviewTimeSeries: OverviewTimeSe
             </Grid>
         ))}
         </Grid>
-        <Grid container spacing={12} p={3}>
+        <Grid container spacing={12} p={3} key={0}>
         {overviewInfoData.map(({ title, data }, index) => (
         <Grid item md={12} key={index}>
                 <Typography variant="h6">
                 {title}
                 </Typography>
                 <Paper elevation={12}>
-                    <StackedApacheEchart data={data}/>
-                    <SliderHelp/>
+                    <StackedApacheEchart data={data} style={{ flex: 1 }}/>
+                    <SliderHelp />
                 </Paper>
             </Grid>
         ))}
+        </Grid>
+        <Grid container spacing={12} p={3}>
+        {totalErrorsByDayOverViewInfoData.map(({ title, data }, index) => (
+            <Grid item md={12} key={index}>
+                    <Typography variant="h6">
+                    {title}
+                    </Typography>
+                    <Paper elevation={12}>
+                        <PercentStackedApacheEchart data={data}/>
+                        <SliderHelp/>
+                    </Paper>
+                </Grid>
+            ))}
         </Grid>
     </div>);
 }
@@ -300,6 +326,26 @@ export function totalErrorBreakdownByDayOverViewInfo(day: string, totalErrors: O
 
 export function totalSuccessVsFailureOverViewInfo(day: string, successVsFailure: any) {
     var object = {}
+    // @ts-ignore
+    object["id"] = day
+    // @ts-ignore
+    object["success"] = successVsFailure["success"]
+    // @ts-ignore
+    object["failure"] = successVsFailure["failure"]
+
+    return object
+}
+
+export function totalFailuresPercentageGrouping(day: string, data: any) {
+    var object = {}
+    const set = new Set<string>();
+    // @ts-ignore
+    data.errors.forEach(e => {
+        // @ts-ignore
+        set.add(e.error_code)
+        // @ts-ignore
+        object[e.error_code] = 0
+    })
     // @ts-ignore
     object["id"] = day
     // @ts-ignore

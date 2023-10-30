@@ -27,6 +27,7 @@ export default function PercentStackedApacheEchart({data} : any) {
   keys.forEach(key => {
     var values: number[] = []
     var index:number  = 0;
+    data.sort((x: { name: string; },y: { name: string; }) => x.name < y.name ? -1 : x.name > y.name ? 1 :  0); 
     data.forEach((element: any) => {
       var val: number = element[key] as number
       //@ts-ignore

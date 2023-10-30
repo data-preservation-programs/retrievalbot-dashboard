@@ -175,6 +175,8 @@ function overviewInfoView(overviewDataList: { overviewTimeSeries: OverviewTimeSe
     var totalErrorBreakdownByDayOverViewInfoData: any[] = [];
     var totalSuccessVsFailureByDayOverViewInfoData: any[] = [];
 
+    const error_codes = new Set<string>();
+
     // remove the first day because it don't have a full days worth of data.
     overviewDataList[0].overviewTimeSeries[1].forEach(function (day : any) {
         var successCount = 0;
@@ -192,6 +194,7 @@ function overviewInfoView(overviewDataList: { overviewTimeSeries: OverviewTimeSe
                         var err_code = e.errors.error_code as string;
                         if (!errors.has(err_code)) {
                             errors.set(err_code, { error_code: err_code, total: 0 });
+                            error_codes.add(err_code)
                         }
     
                         var errorObject = errors.get(err_code) as Error;
@@ -205,6 +208,14 @@ function overviewInfoView(overviewDataList: { overviewTimeSeries: OverviewTimeSe
         totalSuccessVsFailureByDayOverViewInfoData.push(totalSuccessVsFailureOverViewInfo(day._id, {success: successCount, failure: failureCount }));
     });
 
+    totalErrorBreakdownByDayOverViewInfoData.forEach(function (day: any) {
+        error_codes.forEach(error => {
+            if (!(error in day)) {
+                day[error] = 0;
+            }
+        });
+    });
+
     const totalCallsData = [
         { id: module, value: totalCalls.get(module) },
     ];
@@ -213,6 +224,8 @@ function overviewInfoView(overviewDataList: { overviewTimeSeries: OverviewTimeSe
     overviewInfoPercentData.push({title: "Total Calls Success VS Failure Per Day", data: totalSuccessVsFailureByDayOverViewInfoData})
     var overviewInfoData:{title: string, data: any[]}[] = []
     overviewInfoData.push({title: "Total Errors Per Day", data: totalErrorBreakdownByDayOverViewInfoData})
+    var overviewInfoErrorPercentData:{title: string, data: any[]}[] = []
+    overviewInfoErrorPercentData.push({title: "Total Errors Per Day", data: totalErrorBreakdownByDayOverViewInfoData})
     return (<div>
         <Grid container spacing={10} key={0} p={3}> 
             {totalCallsData.map(({ id, value }, index) => (
@@ -248,6 +261,19 @@ function overviewInfoView(overviewDataList: { overviewTimeSeries: OverviewTimeSe
                 </Typography>
                 <Paper elevation={12}>
                     <StackedApacheEchart data={data}/>
+                    <SliderHelp/>
+                </Paper>
+            </Grid>
+        ))}
+        </Grid>
+        <Grid container spacing={12} p={3}>
+        {overviewInfoErrorPercentData.map(({ title, data }, index) => (
+        <Grid item md={12} key={index}>
+                <Typography variant="h6">
+                {title}
+                </Typography>
+                <Paper elevation={12}>
+                    <PercentStackedApacheEchart data={data}/>
                     <SliderHelp/>
                 </Paper>
             </Grid>
